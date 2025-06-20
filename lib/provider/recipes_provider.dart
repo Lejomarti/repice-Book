@@ -36,7 +36,7 @@ class RecipesProvider extends ChangeNotifier {
     final isFavorite = favoriteRecipe.contains(recipe);
 
     try {
-      final url = Uri.parse('http://10.0.2.2:3001/recipes/favorites');
+      final url = Uri.parse('http://10.0.2.2:3001/favorites');
       final response = isFavorite 
       ? await http.delete(url,body:json.encode({"id" :recipe.id}))
       : await http.post(url,body:json.encode(recipe.toJSON()));
