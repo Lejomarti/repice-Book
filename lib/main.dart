@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:repice_book/provider/recipes_provider.dart';
+import 'package:repice_book/screens/favorites_screen.dart';
 import 'package:repice_book/screens/home_screen.dart';
 
 void main() {
@@ -31,7 +32,7 @@ class RecipeBook extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 1,
+      length: 2,
 
       child: Scaffold(
         appBar: AppBar(
@@ -46,10 +47,14 @@ class RecipeBook extends StatelessWidget {
                 icon: Icon(Icons.home, color: Colors.white),
                 text: "Home",
               ),
+              Tab(
+                icon: Icon(Icons.favorite, color: Colors.white),
+                text: "Favorites",
+              ),
             ],
           ),
         ),
-        body: TabBarView(children: [HomeScreen()]),
+        body: TabBarView(children: [HomeScreen(), FavoritesScreen()]),
       ),
     );
   }
