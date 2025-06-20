@@ -1,53 +1,36 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:repice_book/provider/recipes_provider.dart';
 import 'package:repice_book/screens/recipe_detail.dart';
 import 'package:http/http.dart' as http;
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  Future<List<dynamic>> FetchRecipes() async {
-    // Android -> 10.0.2.2    // iOS -> 127.0.0.1    // Web-> localhost
-    final url = Uri.parse("http://10.0.2.2:3001/recipes");
-
-    try {
-    final response = await http.get(url);
-    if (response.statusCode == 200){
-    final data = jsonDecode(response.body);
-    return data['recipes'];
-    } else {
-      print('Error ${response.statusCode}');
-      return [];
-    }
-    } catch (e) {
-      print('Error in request');
-      return [];
-    }
-  }
+  
 
   @override
   Widget build(BuildContext context) {
+    final recipesProvider = Provider.of<RecipesProvider>(
+      context,
+      listen: false,
+    );
+    recipesProvider.fetchRecipes();
+
     return Scaffold(
-      body: FutureBuilder<List<dynamic>>(
-        future: FetchRecipes(),
-        builder: (context, snapshot) {
-          final recipes = snapshot.data ?? [];
-          if(snapshot.connectionState == ConnectionState.waiting){
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          } else if(!snapshot.hasData || snapshot.data!.isEmpty){
-            return const Center(
-              child: Text("No recipes found"),
-            );
+      body: Consumer<RecipesProvider>(
+        builder: (context, provider, child) {
+          if (provider.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (provider.recipes.isEmpty) {
+            return const Center(child: Text("No recipes found"));
           } else {
-          return ListView.builder(
-            itemCount: recipes.length,
-            itemBuilder: (context, index) {
-              return _RecipesCard(context, recipes[index]);
-            },
-          );
+            return ListView.builder(
+              itemCount: provider.recipes.length,
+              itemBuilder: (context, index) {
+                return _RecipesCard(context, provider.recipes[index]);
+              },
+            );
           }
         },
       ),
@@ -86,7 +69,7 @@ class HomeScreen extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => RecipeDetail(recipeName: recipe["name"]),
+            builder: (context) => RecipeDetail(recipeName: recipe.name),
           ),
         );
       },
@@ -104,7 +87,7 @@ class HomeScreen extends StatelessWidget {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(10),
                     child: Image.network(
-                      recipe["image_link"],
+                      recipe.image_link,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
                         return Container(
@@ -121,13 +104,13 @@ class HomeScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Text(
-                      recipe["name"],
+                      recipe.name,
                       style: TextStyle(fontSize: 16, fontFamily: "Quicksand"),
                     ),
                     SizedBox(height: 4),
                     Container(height: 1, width: 50, color: Colors.orange),
                     Text(
-                      recipe["author"],
+                      recipe.author,
                       style: TextStyle(fontSize: 16, fontFamily: "Quicksand"),
                     ),
                     SizedBox(height: 4),
@@ -143,7 +126,7 @@ class HomeScreen extends StatelessWidget {
 }
 
 class RecipeForm extends StatefulWidget {
-  const RecipeForm({Key? key}) : super(key: key);
+  const RecipeForm({Key? key});
 
   @override
   State<RecipeForm> createState() => _RecipeFormState();

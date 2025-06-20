@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 
 class Recipe {
   String name;
@@ -19,7 +18,7 @@ class Recipe {
     return Recipe(
       name: json['name'],
       author: json['author'],
-      image_link: json['image_Link'],
+      image_link: json['image_link'],
       recipeSteps: List<String>.from(json['recipe']),
 
     );
